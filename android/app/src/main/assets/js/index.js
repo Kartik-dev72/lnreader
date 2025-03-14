@@ -1,21 +1,39 @@
 const { div, p, img, button } = van.tags;
 
 const ChapterEnding = () => {
-  return () =>
-    reader.generalSettings.val.pageReader
+  return async () => {
+    const prevChapter = await getPrevChapter(reader.novelId, reader.chapterId);
+    
+    return reader.generalSettings.val.pageReader
       ? div()
-      : div(div({ class: 'info-text' }, reader.strings.finished), () =>
+      : div(
+          div({ class: 'info-text' }, reader.strings.finished),
+
+          // Add Previous Chapter button if available
+          prevChapter
+            ? button(
+                {
+                  class: 'prev-button',
+                  onclick: () => reader.post({ type: 'prev' }),
+                },
+                reader.strings.prevChapter || "Previous Chapter"
+              )
+            : div({ class: 'info-text' }, reader.strings.noPrevChapter || "No Previous Chapter"),
+
           reader.nextChapter
             ? button(
                 {
                   class: 'next-button',
                   onclick: () => reader.post({ type: 'next' }),
                 },
-                reader.strings.nextChapter,
+                reader.strings.nextChapter
               )
             : div({ class: 'info-text' }, reader.strings.noNextChapter),
         );
+  };
 };
+
+
 
 const Scrollbar = () => {
   const horizontal = van.derive(
